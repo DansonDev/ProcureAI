@@ -61,7 +61,7 @@
 
 ## 🛠 Технологии
 - Python  
-- FastAPI / Django  
+- FastAPI  
 - PostgreSQL / SQLite  
 - (в перспективе) Machine Learning  
 
