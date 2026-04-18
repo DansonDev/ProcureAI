@@ -36,7 +36,7 @@
 - 3.2 База данных  
 
 ### 4. Реализация  
-- 4.1 Backend (Python + FastAPI / Django)  
+- 4.1 Backend (Python + FastAPI)  
 - 4.2 База данных  
 
 ### 5. Тестирование  
@@ -62,7 +62,7 @@
 ## 🛠 Технологии
 - Python  
 - FastAPI  
-- PostgreSQL / SQLite  
+- SQLite  
 - (в перспективе) Machine Learning  
 
 ---
