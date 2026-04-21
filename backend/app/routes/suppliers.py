@@ -1,39 +1,66 @@
 from fastapi import APIRouter, HTTPException
+from app.database.simple_db import cursor, conn
+
 
 router = APIRouter()
 
-suppliers = []
-current_id = 1
-
 
 @router.get("/suppliers")
-def list_suppliers(limit: int=10): #limit of suppliers at one page, changing by user_resolution
-    return suppliers[:limit]
+def list_suppliers(limit: int=10): #limit of suppliers at one page
+    cursor.execute(
+        "SELECT * FROM suppliers LIMIT ?",
+        (limit,)
+    )
+    rows = cursor.fetchall()
+
+    result = []
+    
+    for row in rows:
+        result.append({
+            "id": row[0],
+            "name": row[1],
+            "price": row[2]
+        })
+
+
+    return result
 
 
 @router.post("/suppliers")
 def add_supplier(name: str, price: float):
-    global current_id
-
     if price < 0:
         raise HTTPException(status_code=400, detail="Price must be positive")
+    
+    try:
+        cursor.execute(
+            "INSERT INTO suppliers (name, price) VALUES (?, ?)",
+            (name, float(price))
+        )
+        conn.commit()
 
-    supplier = {
-        "id": current_id,
-        "name": name,
-        "price": price
-    }
+        supplier_id = cursor.lastrowid
 
-    suppliers.append(supplier)
-    current_id += 1
-
-    return supplier
-
+        return {
+            "id": supplier_id,
+            "name": name,
+            "price": price
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 @router.get("/suppliers/{supplier_id}")
 def get_supplier(supplier_id: int):
-    for supplier in suppliers:
-        if supplier["id"] == supplier_id:
-            return supplier
+    cursor.execute(
+        "SELECT * FROM suppliers WHERE id = ?",
+        (supplier_id,)
+    )
+    supplier = cursor.fetchone()
 
-    raise HTTPException(status_code=404, detail=f"Supplier {supplier_id} not found")
+    if not supplier:
+        raise HTTPException(status_code=404, detail=f"Supplier {supplier_id} not found")
+    
+    return {
+        "id": supplier[0],
+        "name": supplier[1],
+        "price": supplier[2],
+    }
